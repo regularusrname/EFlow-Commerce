@@ -24,11 +24,11 @@ public class Order
     public OrderStatus Status { get; set; }
     public DateTime CreatedAtUtc { get; init; }
     public required List<OrderItem> Items { get; init; }
-    public ulong TotalPrice => CalculateTotalPrice();
+    public decimal TotalPrice => CalculateTotalPrice();
 
-    private ulong CalculateTotalPrice()
+    private decimal CalculateTotalPrice()
     {
-        ulong totalPrice = 0; 
+        decimal totalPrice = 0; 
         foreach (var item in Items)
             totalPrice += item.TotalPrice;
 
