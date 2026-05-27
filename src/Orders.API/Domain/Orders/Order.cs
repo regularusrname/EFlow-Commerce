@@ -1,14 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Orders.API.Domain.Orders;
 
 public class Order
 {
-    private Order()
-    {
-        Id = Guid.CreateVersion7();
-        Status = OrderStatus.Pending;
-        CreatedAtUtc = DateTime.UtcNow;
-    }
-    
+    [SetsRequiredMembers]
     public Order(Guid customerId, IEnumerable<OrderItem> items)
     {
         if (customerId == Guid.Empty)
@@ -16,14 +12,18 @@ public class Order
         if (items is null || items.Count() == 0)
             throw new ArgumentException("Items of Order must exist");
 
+        Id = Guid.CreateVersion7();
+        Status = OrderStatus.Pending;
+        CreatedAtUtc = DateTime.UtcNow;
+
         CustomerId = customerId;
         Items = [.. items];
     }
     
-    public Guid Id { get; init; }
-    public Guid CustomerId { get; init; }
-    public OrderStatus Status { get; set; }
-    public DateTime CreatedAtUtc { get; init; }
+    public required Guid Id { get; init; }
+    public required Guid CustomerId { get; init; }
+    public required OrderStatus Status { get; set; }
+    public required DateTime CreatedAtUtc { get; init; }
     public required List<OrderItem> Items { get; init; }
     public decimal TotalPrice => CalculateTotalPrice();
 
