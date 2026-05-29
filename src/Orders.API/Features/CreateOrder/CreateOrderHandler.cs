@@ -5,13 +5,9 @@ using Orders.API.Infrastructure.Persistence;
 
 namespace Orders.API.Features.CreateOrder;
 
-public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Result<CreateOrderResponse>>
+public class CreateOrderHandler(OrderDbContext context) : IRequestHandler<CreateOrderCommand, Result<CreateOrderResponse>>
 {
-    private readonly OrderDbContext _context;
-    public CreateOrderHandler(OrderDbContext context)
-    {
-        _context = context;
-    }
+    private readonly OrderDbContext _context = context;
 
     public async Task<Result<CreateOrderResponse>> HandleAsync(CreateOrderCommand request, CancellationToken cancellation)
     {

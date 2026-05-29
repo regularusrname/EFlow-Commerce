@@ -1,4 +1,3 @@
-using Orders.API.Common.Abstractions;
 using Orders.API.Domain.Orders;
 
 namespace Orders.API.Features.CreateOrder;
