@@ -1,0 +1,14 @@
+services:
+    postgres:
+        image: postgres:16
+        container_name: eflow_postgres
+        environment:
+            POSTGRES_DB: eflow-dev
+            POSTGRES_USER: eflow-dev_user
+            POSTGRES_PASSWORD: secret
+        ports:
+            - "5432:5432"
+        volumes:
+            - eflow_postgres_data:/var/lib/postgresql/data
+volumes:
+    eflow_postgres_data:

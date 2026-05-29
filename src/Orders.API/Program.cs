@@ -3,6 +3,7 @@ using Orders.API.Common;
 using Orders.API.Common.Endpoints;
 using Orders.API.Common.Pipeline;
 using Orders.API.Features.CreateOrder;
+using Orders.API.Features.GetOrder;
 using Orders.API.Infrastructure.Persistence;
 
 try
@@ -19,6 +20,7 @@ try
     });
     
     builder.Services.AddDecoratedHandler<CreateOrderCommand, Result<CreateOrderResponse>, CreateOrderHandler>();
+    builder.Services.AddDecoratedHandler<GetOrderQuery, Result<GetOrderResponse>, GetOrderQueryHandler>();
 
     var app = builder.Build();
     
