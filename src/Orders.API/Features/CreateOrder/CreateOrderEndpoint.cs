@@ -15,8 +15,7 @@ public static class CreateOrderEndpoint
 
             if (response.IsFailure)
                 return Results.BadRequest(response.Error);
-
-            return Results.Ok(response.Value);
-        });
+            return Results.Created("/orders", response.Value);
+        }); 
     }
 }

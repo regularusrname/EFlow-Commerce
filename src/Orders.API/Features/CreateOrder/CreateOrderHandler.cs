@@ -11,7 +11,11 @@ public class CreateOrderHandler(OrderDbContext context) : IRequestHandler<Create
 
     public async Task<Result<CreateOrderResponse>> HandleAsync(CreateOrderCommand request, CancellationToken cancellation)
     {
-        var order = new Order(request.CustomerId, request.Items);
+        var domainItems = request.Items.Select(coi => 
+        {
+            return new OrderItem(Guid.Parse(coi.ProductId), coi.Quantity, coi.UnitPrice);
+        });
+        var order = new Order(Guid.Parse(request.CustomerId), domainItems);
         
         await _context.Orders.AddAsync(order);
         await _context.SaveChangesAsync();
