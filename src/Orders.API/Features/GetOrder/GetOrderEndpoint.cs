@@ -15,7 +15,7 @@ public static class GetOrderEndpoint
             var query = new GetOrderQuery(id);
             var result = await handler.HandleAsync(query, ct);
 
-            if (result.IsFailure)
+            if (!result.IsSuccess)
                 return Results.NotFound(result.Error);
 
             return Results.Ok(result.Value);

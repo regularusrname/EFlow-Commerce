@@ -13,7 +13,7 @@ public static class CreateOrderEndpoint
         {
             var response = await handler.HandleAsync(command, ct);
 
-            if (response.IsFailure)
+            if (!response.IsSuccess)
                 return Results.BadRequest(response.Error);
             return Results.Created("/orders", response.Value);
         }); 
