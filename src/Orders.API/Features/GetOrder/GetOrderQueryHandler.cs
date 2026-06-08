@@ -9,9 +9,10 @@ public class GetOrderQueryHandler(OrderDbContext context) : IRequestHandler<GetO
 {
     public async Task<Result<GetOrderResponse>> HandleAsync(GetOrderQuery request, CancellationToken cancellation)
     {
+        var requestedId = Guid.Parse(request.OrderId);
         var orderById = await context.Orders
             .Include(o => o.Items)
-            .FirstOrDefaultAsync(o => o.Id == request.OrderId, cancellation);
+            .FirstOrDefaultAsync(o => o.Id == requestedId, cancellation);
 
         if (orderById is null)
             return Result<GetOrderResponse>.Failure(new Error("GetOrder.Failure", "Order with given ID was not found."));

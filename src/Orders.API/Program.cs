@@ -37,6 +37,7 @@ builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
 builder.Services.AddDecoratedHandler<CreateOrderCommand, Result<CreateOrderResponse>, CreateOrderHandler>();
 builder.Services.AddDecoratedHandler<GetOrderQuery, Result<GetOrderResponse>, GetOrderQueryHandler>();
+builder.Services.AddDecoratedHandler<GetOrderQuery, Result<GetOrderResponse>, GetOrderQueryHandler>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

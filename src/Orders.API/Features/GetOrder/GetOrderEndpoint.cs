@@ -8,7 +8,7 @@ public static class GetOrderEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapGet("/orders/{id:guid}", async (
-            Guid id,
+            string id,
             IRequestHandler<GetOrderQuery, Result<GetOrderResponse>> handler,
             CancellationToken ct) => 
         {

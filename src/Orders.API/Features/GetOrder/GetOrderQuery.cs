@@ -1,3 +1,3 @@
 namespace Orders.API.Features.GetOrder;
 
-public record GetOrderQuery(Guid OrderId);
+public record GetOrderQuery(string OrderId);
