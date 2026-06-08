@@ -20,7 +20,7 @@ public class CreateOrderHandler(OrderDbContext context) : IRequestHandler<Create
         await _context.Orders.AddAsync(order);
         await _context.SaveChangesAsync();
 
-        var response = new CreateOrderResponse(order.Id, order.Status.ToString());
+        var response = new CreateOrderResponse(order.Id.ToString(), order.Status.ToString());
         return Result<CreateOrderResponse>.Success(response);
     }
 }

@@ -17,8 +17,8 @@ public class GetOrderQueryHandler(OrderDbContext context) : IRequestHandler<GetO
             return Result<GetOrderResponse>.Failure(new Error("GetOrder.Failure", "Order with given ID was not found."));
 
         var responseDto = new GetOrderResponse(
-                orderById.Id, 
-                orderById.CustomerId, 
+                orderById.Id.ToString(),
+                orderById.CustomerId.ToString(), 
                 orderById.Status.ToString(), 
                 orderById.CreatedAtUtc, 
                 orderById.Items, 

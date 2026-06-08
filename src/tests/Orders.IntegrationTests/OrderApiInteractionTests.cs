@@ -82,8 +82,8 @@ public class OrderApiInteractionTests : IntegrationTestBase
 
         Assert.Equal(HttpStatusCode.OK, getByIdResponse.StatusCode);
         Assert.NotNull(getByIdJsonResponse);
-        Assert.Equal(jsonCreateResponse.OrderId, getByIdJsonResponse.OrderId);
-        Assert.Equal(expectedCustomerId, getByIdJsonResponse.CustomerId);
+        Assert.Equal(jsonCreateResponse.OrderId, getByIdJsonResponse.OrderId.ToString());
+        Assert.Equal(expectedCustomerId, Guid.Parse(getByIdJsonResponse.CustomerId));
         // Debug(await getByIdResponse.Content.ReadAsStringAsync());
         Assert.NotEmpty(getByIdJsonResponse.Items);
         Assert.Equal(expectedProductId, getByIdJsonResponse.Items.First().ProductId);
