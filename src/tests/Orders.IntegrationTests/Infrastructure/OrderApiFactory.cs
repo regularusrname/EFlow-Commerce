@@ -20,15 +20,17 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     private Respawner _respawner = default!;
 
-    private OrderDbContext _context = default!;
+    private OrderDbContext _context = null!;
 
     public async Task InitializeAsync()
     {
         await _postgres.StartAsync();
 
-        using var scope = Services.CreateScope();
-        _context = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
-        
+        var options = new DbContextOptionsBuilder<OrderDbContext>()
+            .UseNpgsql(_postgres.GetConnectionString())
+            .Options;
+        _context = new OrderDbContext(options);
+
         await _context.Database.MigrateAsync();
 
         await using var conn = new NpgsqlConnection(_postgres.GetConnectionString());
