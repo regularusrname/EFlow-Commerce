@@ -20,14 +20,16 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     private Respawner _respawner = default!;
 
+    private OrderDbContext _context = default!;
+
     public async Task InitializeAsync()
     {
         await _postgres.StartAsync();
 
         using var scope = Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+        _context = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
         
-        await context.Database.MigrateAsync();
+        await _context.Database.MigrateAsync();
 
         await using var conn = new NpgsqlConnection(_postgres.GetConnectionString());
         await conn.OpenAsync();
@@ -53,6 +55,7 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         await conn.OpenAsync();
 
         await _respawner.ResetAsync(conn);
+        _context.ChangeTracker.Clear();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
