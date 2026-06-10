@@ -60,12 +60,12 @@ public class OrderApiInteractionTests : IntegrationTestBase
         var expectedProductId = Guid.CreateVersion7();
         var request = new
         {
-            customerId = expectedCustomerId,
+            customerId = expectedCustomerId.ToString(),
             items = new[]
             {
                 new
                 {
-                    productId = expectedProductId,
+                    productId = expectedProductId.ToString(),
                     quantity = 2,
                     unitPrice = 420.69m,
                 },
