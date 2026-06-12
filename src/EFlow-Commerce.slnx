@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/tests/">
+    <Project Path="tests/Catalog.IntegrationTests/Catalog.IntegrationTests.csproj" />
+    <Project Path="tests/Catalog.UnitTests/Catalog.UnitTests.csproj" />
     <Project Path="tests/Orders.IntegrationTests/Orders.IntegrationTests.csproj" />
     <Project Path="tests/Orders.UnitTests/Orders.UnitTests.csproj" />
   </Folder>
