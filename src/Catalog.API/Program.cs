@@ -26,7 +26,7 @@ builder.Services.AddProblemDetails(opts =>
 {
     opts.CustomizeProblemDetails = ctx =>
     {
-        if (ctx.Exception is FormatException or JsonException)
+        if (ctx.Exception is BadHttpRequestException)
         {
             ctx.ProblemDetails.Status = 400;
             ctx.ProblemDetails.Title = "Invalid request format";

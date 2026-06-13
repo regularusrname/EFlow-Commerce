@@ -18,7 +18,7 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         .WithPassword("postgres")
         .Build();
 
-    private Respawner _respawner = default!;
+    private Respawner _respawner = null!;
 
     private OrderDbContext _context = null!;
 
@@ -48,6 +48,7 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
         await _postgres.StopAsync();
         await _postgres.DisposeAsync();
+        await _context.DisposeAsync();
     }
 
     public async Task ResetDatabaseAsync()
