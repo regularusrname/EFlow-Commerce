@@ -9,6 +9,7 @@ using Catalog.API.Common;
 using Catalog.API.Features.GetProduct;
 using Catalog.API.Features;
 using Catalog.API.Common.Endpoints;
+using Catalog.API.Features.GetProducts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,7 @@ builder.Services.AddProblemDetails(opts =>
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddDecoratedHandler<CreateProductCommand, Result<CreateProductResponse>, CreateProductHandler>();
 builder.Services.AddDecoratedHandler<GetProductQuery, Result<ProductResponse>, GetProductHandler>();
+builder.Services.AddDecoratedHandler<GetProductsQuery, Result<GetProductsResponse>, GetProductsHandler>();
 
 builder.Services.AddOpenApi();
 

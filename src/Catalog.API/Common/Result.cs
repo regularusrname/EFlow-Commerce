@@ -1,6 +1,7 @@
 namespace Catalog.API.Common;
 
-public interface IResult<TSelf> where TSelf : IResult<TSelf>
+public interface IResult<TSelf>
+    where TSelf : IResult<TSelf>
 {
     bool IsSuccess { get; }
     IReadOnlyCollection<Error> Errors { get; }
@@ -10,12 +11,15 @@ public interface IResult<TSelf> where TSelf : IResult<TSelf>
 
 public class Result<T> : IResult<Result<T>>
 {
-    public T? Value 
-    { 
-        get => IsSuccess 
-            ? field 
-            : throw new InvalidOperationException("Cannot get Value property: Result is not failure"); 
-        private set; 
+    public T? Value
+    {
+        get =>
+            IsSuccess
+                ? field
+                : throw new InvalidOperationException(
+                    "Cannot get Value property: Result is not failure"
+                );
+        private set;
     }
     public bool IsSuccess { get; }
     public IReadOnlyCollection<Error> Errors { get; }
@@ -29,11 +33,15 @@ public class Result<T> : IResult<Result<T>>
 
     private Result(IReadOnlyCollection<Error> errors)
     {
+        if (errors is null || !errors.Any())
+            throw new InvalidOperationException("Failure result must contain at least one error.");
         IsSuccess = false;
         Errors = errors;
     }
 
     public static Result<T> Success(T value) => new(value);
+
     public static Result<T> Failure(IReadOnlyCollection<Error> errors) => new(errors);
+
     public static Result<T> Failure(Error error) => new([error]);
 }

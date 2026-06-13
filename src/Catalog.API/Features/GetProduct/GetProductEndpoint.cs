@@ -1,10 +1,15 @@
+using Catalog.API.Common;
+using Catalog.API.Common.Abstractions;
+
 namespace Catalog.API.Features.GetProduct;
 
 public static class GetProductEndpoint
 {
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapGet("/products/{id}", async (string id, CancellationToken token, GetProductHandler handler) =>
+        app.MapGet("/products/{id}", async (string id, 
+                    CancellationToken token, 
+                    IRequestHandler<GetProductQuery, Result<ProductResponse>> handler) =>
         {
             var query = new GetProductQuery(id);
 

@@ -16,7 +16,7 @@ public static class GetOrderEndpoint
             var result = await handler.HandleAsync(query, ct);
 
             if (!result.IsSuccess)
-                return Results.NotFound(result.Error);
+                return Results.NotFound(result.Errors);
 
             return Results.Ok(result.Value);
         });

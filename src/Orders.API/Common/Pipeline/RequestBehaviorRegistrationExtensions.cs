@@ -8,7 +8,7 @@ public static class RequestBehaviorRegistrationExtensions
     public static IServiceCollection AddDecoratedHandler<TRequest, TResponse, THandler>(
             this IServiceCollection services)
         where TRequest : notnull
-        where TResponse : Result
+        where TResponse : IResult<TResponse>
         where THandler : class, IRequestHandler<TRequest, TResponse>
     {
         services.AddTransient<THandler>();

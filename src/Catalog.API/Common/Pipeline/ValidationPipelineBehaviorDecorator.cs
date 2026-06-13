@@ -1,4 +1,3 @@
-using System.Reflection;
 using Catalog.API.Common.Abstractions;
 using FluentValidation;
 
