@@ -14,7 +14,12 @@ public static class CreateOrderEndpoint
             var response = await handler.HandleAsync(command, ct);
 
             if (!response.IsSuccess)
+            {
+                if (response.Errors.First().Code == "CreateOrder.ProductNotFound")
+                    return Results.NotFound(response.Errors);
+
                 return Results.BadRequest(response.Errors);
+            }
             return Results.Created("/orders", response.Value);
         }); 
     }

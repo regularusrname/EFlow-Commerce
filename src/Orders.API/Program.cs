@@ -1,12 +1,13 @@
 using System.Reflection;
-using System.Text.Json;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Orders.API.Common;
+using Orders.API.Common.Abstractions;
 using Orders.API.Common.Endpoints;
 using Orders.API.Common.Pipeline;
 using Orders.API.Features.CreateOrder;
 using Orders.API.Features.GetOrder;
+using Orders.API.Infrastructure.Catalog;
 using Orders.API.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,14 @@ builder.Services.AddProblemDetails(opts =>
 });
 
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+builder.Services.AddHttpClient("Catalog.API", httpClient =>
+{
+    var baseUrl = builder.Configuration.GetValue<string>("ExternalServices:Catalog:BaseUrl");
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new InvalidOperationException("Cannot get base url for Catalog.API service");
+    httpClient.BaseAddress = new Uri(baseUrl);
+});
+builder.Services.AddTransient<ICatalogClient<Result<CatalogProductResponse>>, HttpCatalogClient>();
 
 builder.Services.AddDecoratedHandler<CreateOrderCommand, Result<CreateOrderResponse>, CreateOrderHandler>();
 builder.Services.AddDecoratedHandler<GetOrderQuery, Result<GetOrderResponse>, GetOrderQueryHandler>();

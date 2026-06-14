@@ -9,8 +9,8 @@ public class OrderValidationTests
 {
     private readonly List<CreateOrderItem> _validItems = 
     [
-        new (Guid.CreateVersion7().ToString(), 1, 10m),
-        new (Guid.CreateVersion7().ToString(), 2, 20m)
+        new (Guid.CreateVersion7().ToString(), 1),
+        new (Guid.CreateVersion7().ToString(), 2)
     ];
 
     [Fact]
@@ -93,7 +93,7 @@ public class OrderValidationTests
     [Fact]
     public async Task CreateOrderValidation_Failure_ProductIdIsEmptyGuid()
     {
-        List<CreateOrderItem> invalidItems = [.. _validItems, new(Guid.Empty.ToString(), 1, 1m)];
+        List<CreateOrderItem> invalidItems = [.. _validItems, new(Guid.Empty.ToString(), 1)];
         var validator = new CreateOrderCommandValidator(new CreateOrderItemValidator());
         var command = new CreateOrderCommand(Guid.CreateVersion7().ToString(), invalidItems);
         
@@ -107,7 +107,7 @@ public class OrderValidationTests
     [Fact]
     public async Task CreateOrderValidation_Failure_ProductIdIsWhitespace()
     {
-        List<CreateOrderItem> invalidItems = [.. _validItems, new(" ", 1, 1m)];
+        List<CreateOrderItem> invalidItems = [.. _validItems, new(" ", 1)];
         var validator = new CreateOrderCommandValidator(new CreateOrderItemValidator());
         var command = new CreateOrderCommand(Guid.CreateVersion7().ToString(), invalidItems);
         
@@ -121,7 +121,7 @@ public class OrderValidationTests
     [Fact]
     public async Task CreateOrderValidation_Failure_ProductIdIsEmptyString()
     {
-        List<CreateOrderItem> invalidItems = [.. _validItems, new("", 1, 1m)];
+        List<CreateOrderItem> invalidItems = [.. _validItems, new("", 1)];
         var validator = new CreateOrderCommandValidator(new CreateOrderItemValidator());
         var command = new CreateOrderCommand(Guid.CreateVersion7().ToString(), invalidItems);
         
@@ -136,7 +136,7 @@ public class OrderValidationTests
     [Fact]
     public async Task CreateOrderValidation_Failure_ProductIdIsInvalid()
     {
-        List<CreateOrderItem> invalidItems = [.. _validItems, new($"{Guid.CreateVersion7()}ab", 1, 1m)];
+        List<CreateOrderItem> invalidItems = [.. _validItems, new($"{Guid.CreateVersion7()}ab", 1)];
         var validator = new CreateOrderCommandValidator(new CreateOrderItemValidator());
         var command = new CreateOrderCommand(Guid.CreateVersion7().ToString(), invalidItems);
         
@@ -150,7 +150,7 @@ public class OrderValidationTests
     [Fact]
     public async Task CreateOrderValidation_Failure_QuantityNotGreaterThanZero()
     {
-        List<CreateOrderItem> invalidItems = [.. _validItems, new(Guid.CreateVersion7().ToString(), -1, 1m)];
+        List<CreateOrderItem> invalidItems = [.. _validItems, new(Guid.CreateVersion7().ToString(), -1)];
         var validator = new CreateOrderCommandValidator(new CreateOrderItemValidator());
         var command = new CreateOrderCommand(Guid.CreateVersion7().ToString(), invalidItems);
         
@@ -164,7 +164,7 @@ public class OrderValidationTests
     [Fact]
     public async Task CreateOrderValidation_Failure_UnitPriceNotGreaterThanZero()
     {
-        List<CreateOrderItem> invalidItems = [.. _validItems, new(Guid.CreateVersion7().ToString(), 1, -1m)];
+        List<CreateOrderItem> invalidItems = [.. _validItems, new(Guid.CreateVersion7().ToString(), 1)];
         var validator = new CreateOrderCommandValidator(new CreateOrderItemValidator());
         var command = new CreateOrderCommand(Guid.CreateVersion7().ToString(), invalidItems);
         

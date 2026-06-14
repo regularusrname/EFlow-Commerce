@@ -30,9 +30,5 @@ public class CreateOrderItemValidator : AbstractValidator<CreateOrderItem>
         RuleFor(i => i.Quantity)
             .GreaterThan(0)
             .WithMessage("Quantity should be greater than 0");
-        RuleFor(i => i.UnitPrice)
-            .GreaterThan(0)
-            .WithMessage("UnitPrice should be greater than 0");
-
     }
 }
