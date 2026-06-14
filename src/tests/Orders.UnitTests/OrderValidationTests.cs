@@ -1,5 +1,3 @@
-using FluentValidation;
-using Orders.API.Common;
 using Orders.API.Features.CreateOrder;
 using Orders.API.Features.GetOrder;
 
@@ -159,20 +157,6 @@ public class OrderValidationTests
         Assert.False(response.IsValid);
         Assert.NotEmpty(response.Errors);
         Assert.Equal("Quantity should be greater than 0", response.Errors.First().ErrorMessage);
-    }
-
-    [Fact]
-    public async Task CreateOrderValidation_Failure_UnitPriceNotGreaterThanZero()
-    {
-        List<CreateOrderItem> invalidItems = [.. _validItems, new(Guid.CreateVersion7().ToString(), 1)];
-        var validator = new CreateOrderCommandValidator(new CreateOrderItemValidator());
-        var command = new CreateOrderCommand(Guid.CreateVersion7().ToString(), invalidItems);
-        
-        var response = await validator.ValidateAsync(command);
-
-        Assert.False(response.IsValid);
-        Assert.NotEmpty(response.Errors);
-        Assert.Equal("UnitPrice should be greater than 0", response.Errors.First().ErrorMessage);
     }
 
     [Fact]

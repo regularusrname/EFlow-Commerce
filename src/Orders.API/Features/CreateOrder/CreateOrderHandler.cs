@@ -31,7 +31,7 @@ public class CreateOrderHandler(OrderDbContext context, ICatalogClient<Result<Ca
                     );
 
                 domainItems.Add(
-                        new OrderItem(catalogResponse.Value.Id, item.Quantity, item.Quantity * catalogResponse.Value.Price)
+                        new OrderItem(catalogResponse.Value.Id, item.Quantity, catalogResponse.Value.Price)
                 );
             }
             var order = new Order(Guid.Parse(request.CustomerId), domainItems);

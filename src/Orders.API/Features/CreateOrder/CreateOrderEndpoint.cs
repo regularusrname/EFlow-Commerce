@@ -15,7 +15,8 @@ public static class CreateOrderEndpoint
 
             if (!response.IsSuccess)
             {
-                if (response.Errors.First().Code == "CreateOrder.ProductNotFound")
+                var notFoundErr = response.Errors.Where(e => e.Code == "CreateOrder.ProductNotFound");
+                if (notFoundErr.Any())
                     return Results.NotFound(response.Errors);
 
                 return Results.BadRequest(response.Errors);
