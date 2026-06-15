@@ -26,6 +26,8 @@ try
             .ReadFrom.Configuration(context.Configuration)
             .ReadFrom.Services(services);
     });
+    builder.Services.AddSerilog();
+
     var connectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
     if (string.IsNullOrWhiteSpace(connectionStr))
         throw new InvalidOperationException("Cannot get DB-connection string from configuration");
