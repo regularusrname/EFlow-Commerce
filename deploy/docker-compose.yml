@@ -1,15 +1,45 @@
 services:
-    postgres:
-        image: postgres:16
-        container_name: eflow_postgres
-        environment:
-            POSTGRES_DB: eflow_orders-dev
-            POSTGRES_USER: eflow-dev_user
-            POSTGRES_PASSWORD: secret
-        ports:
-            - "5432:5432"
-        volumes:
-            - eflow_postgres_data:/var/lib/postgresql/data
-            - ./postgres/db-init.sql:/docker-entrypoint-initdb.d/db-init.sql
+  orders-api:
+    build:
+      context: ../src/Orders.API/
+      dockerfile: Dockerfile
+    container_name: eflow-orders-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=eflow_orders-dev;Username=eflow-dev_user;Password=secret"
+      ExternalServices__Catalog__BaseUrl: http://catalog-api:8080
+    ports:
+      - "5001:8080"
+    depends_on:
+      - postgres
+      - catalog-api
+
+  catalog-api:
+    build:
+      context: ../src/Catalog.API/
+      dockerfile: Dockerfile
+    container_name: eflow-catalog-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=eflow_catalog-dev;Username=eflow-dev_user;Password=secret"
+    ports:
+      - "5002:8080"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16
+    container_name: eflow_postgres
+    environment:
+      POSTGRES_DB: eflow_orders-dev
+      POSTGRES_USER: eflow-dev_user
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - eflow_postgres_data:/var/lib/postgresql/data
+      - ./postgres/db-init.sql:/docker-entrypoint-initdb.d/db-init.sql
 volumes:
-    eflow_postgres_data:
+  eflow_postgres_data:
