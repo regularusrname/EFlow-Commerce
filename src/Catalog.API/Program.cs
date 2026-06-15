@@ -82,6 +82,11 @@ try
         {
             opts.SwaggerEndpoint("/openapi/v1.json", "Dev-Demo Catalog API");
         });
+
+        using var scope = app.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+
+        await context.Database.MigrateAsync();
     }
 
     app.MapProductEndpoints();
