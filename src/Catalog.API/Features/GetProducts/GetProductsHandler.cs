@@ -10,6 +10,8 @@ public class GetProductsHandler(CatalogDbContext context)
 {
     public async Task<Result<GetProductsResponse>> HandleAsync(GetProductsQuery request, CancellationToken token)
     {
+        try
+        {
         var items = await context.Products.Select(p => 
                 new ProductResponse(p.Id.ToString(),
                     p.Name,
@@ -19,5 +21,11 @@ public class GetProductsHandler(CatalogDbContext context)
             .ToListAsync(token) ?? [];
 
         return Result<GetProductsResponse>.Success(new GetProductsResponse(items));
+        } catch (Exception ex)
+        {
+            return Result<GetProductsResponse>.Failure(
+                    new Error("GetProducts.Unavailable", "Service Catalog.API curretly unavailable")
+            );
+        }
     }
 }

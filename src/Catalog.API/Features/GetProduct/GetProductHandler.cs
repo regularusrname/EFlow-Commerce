@@ -8,22 +8,36 @@ namespace Catalog.API.Features.GetProduct;
 public class GetProductHandler(CatalogDbContext context)
     : IRequestHandler<GetProductQuery, Result<ProductResponse>>
 {
-    public async Task<Result<ProductResponse>> HandleAsync(GetProductQuery request, CancellationToken token)
+    public async Task<Result<ProductResponse>> HandleAsync(
+        GetProductQuery request,
+        CancellationToken token
+    )
     {
-        var requestedId = Guid.Parse(request.ProductId);
+        try
+        {
+            var requestedId = Guid.Parse(request.ProductId);
 
-        var response = await context.Products.FirstOrDefaultAsync(p => p.Id == requestedId);
+            var response = await context.Products.FirstOrDefaultAsync(p => p.Id == requestedId);
 
-        return response is null 
-            ? Result<ProductResponse>.Failure(
+            return response is null
+                ? Result<ProductResponse>.Failure(
                     new Error("GetProduct.Failure", "Product with this ProductId not found")
-            )
-            : Result<ProductResponse>.Success(new ProductResponse(
-                        response.Id.ToString(), 
-                        response.Name, 
-                        response.Description ?? "", 
-                        response.Price, 
-                        response.StockQuantity)
+                )
+                : Result<ProductResponse>.Success(
+                    new ProductResponse(
+                        response.Id.ToString(),
+                        response.Name,
+                        response.Description ?? "",
+                        response.Price,
+                        response.StockQuantity
+                    )
+                );
+        }
+        catch (Exception ex)
+        {
+            return Result<ProductResponse>.Failure(
+                new Error("GetProduct.Failure", "Product with this ProductId not found")
             );
+        }
     }
 }

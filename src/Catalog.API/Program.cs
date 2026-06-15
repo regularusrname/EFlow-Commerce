@@ -1,7 +1,6 @@
 using Catalog.API.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
-using System.Text.Json;
 using System.Reflection;
 using Catalog.API.Common.Pipeline;
 using Catalog.API.Features.CreateProduct;
