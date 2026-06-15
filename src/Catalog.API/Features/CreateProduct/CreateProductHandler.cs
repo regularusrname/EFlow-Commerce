@@ -5,7 +5,7 @@ using Catalog.API.Infrastructure.Persistence;
 
 namespace Catalog.API.Features.CreateProduct;
 
-public class CreateProductHandler(CatalogDbContext context)
+public class CreateProductHandler(CatalogDbContext context, ILogger<CreateProductHandler> logger)
     : IRequestHandler<CreateProductCommand, Result<CreateProductResponse>>
 {
     public async Task<Result<CreateProductResponse>> HandleAsync(
@@ -13,6 +13,7 @@ public class CreateProductHandler(CatalogDbContext context)
         CancellationToken token
     )
     {
+        logger.LogInformation("CreateProductHandler start working");
         try
         {
             var domainProduct = new Product(
@@ -22,16 +23,22 @@ public class CreateProductHandler(CatalogDbContext context)
                 request.StockQuantity
             );
 
+            logger.LogInformation("Saving the created product. ProductId: {id}", domainProduct.Id);
             await context.Products.AddAsync(domainProduct, token);
             await context.SaveChangesAsync();
 
+            logger.LogInformation(
+                "CreateProductHandler returning created product with ProductId: {id}",
+                domainProduct.Id
+            );
             return Result<CreateProductResponse>.Success(new(domainProduct.Id.ToString()));
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
+            logger.LogWarning("Exception: {ex}", ex.Message);
             return Result<CreateProductResponse>.Failure(
-                    new Error("CreateProduct.Failure", "Cannot create a product from given data")
-                    );
+                new Error("CreateProduct.Failure", "Cannot create a product from given data")
+            );
         }
     }
 }
