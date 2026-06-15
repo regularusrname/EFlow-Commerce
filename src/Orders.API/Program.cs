@@ -96,6 +96,11 @@ try
         {
             opts.SwaggerEndpoint("/openapi/v1.json", "Dev-Demo API");
         });
+
+        using var scope = app.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+
+        await context.Database.MigrateAsync();
     }
 
     app.MapOrderEndpoints();
