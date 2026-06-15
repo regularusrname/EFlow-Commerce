@@ -11,21 +11,21 @@ using Orders.API.Infrastructure.Catalog;
 using Orders.API.Infrastructure.Persistence;
 using Serilog;
 
-var configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
-    .AddJsonFile(
-        $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json",
-        true
-    )
-    .Build();
 
-Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger();
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
+Log.Information("Start application");
 try
 {
     var builder = WebApplication.CreateBuilder(args);
-    builder.Services.AddSerilog();
+    builder.Host.UseSerilog((context, services, loggerConfiguration) => 
+    {
+        loggerConfiguration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services);
+    });
     var connectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
     if (string.IsNullOrWhiteSpace(connectionStr))
         throw new InvalidOperationException("Cannot get DB-connection string from configuration");
