@@ -1,1 +1,1 @@
-CREATE DATABASE "eflow_catalog-dev";
+CREATE DATABASE "eflow_dev_catalog";

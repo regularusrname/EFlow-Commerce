@@ -7,13 +7,15 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: "Host=postgres;Database=eflow_orders-dev;Username=eflow-dev_user;Password=secret"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=eflow_dev_orders;Username=eflow_dev_user;Password=secret"
       ExternalServices__Catalog__BaseUrl: http://catalog-api:8080
     ports:
       - "5001:8080"
     depends_on:
-      - postgres
-      - catalog-api
+      catalog-api:
+        condition: service_started
+      postgres:
+        condition: service_healthy
 
   catalog-api:
     build:
@@ -23,23 +25,30 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: "Host=postgres;Database=eflow_catalog-dev;Username=eflow-dev_user;Password=secret"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=eflow_dev_catalog;Username=eflow_dev_user;Password=secret"
     ports:
       - "5002:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   postgres:
     image: postgres:16
     container_name: eflow_postgres
     environment:
-      POSTGRES_DB: eflow_orders-dev
-      POSTGRES_USER: eflow-dev_user
+      POSTGRES_DB: eflow_dev_orders
+      POSTGRES_USER: eflow_dev_user
       POSTGRES_PASSWORD: secret
     ports:
       - "5432:5432"
     volumes:
       - eflow_postgres_data:/var/lib/postgresql/data
       - ./postgres/db-init.sql:/docker-entrypoint-initdb.d/db-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eflow_dev_user -d eflow_dev_orders"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 volumes:
   eflow_postgres_data:
