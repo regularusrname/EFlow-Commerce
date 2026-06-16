@@ -11,21 +11,20 @@ using Orders.API.Infrastructure.Catalog;
 using Orders.API.Infrastructure.Persistence;
 using Serilog;
 
-
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
+Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger();
 
 Log.Information("Start application");
 try
 {
     var builder = WebApplication.CreateBuilder(args);
-    builder.Host.UseSerilog((context, services, loggerConfiguration) => 
-    {
-        loggerConfiguration
-            .ReadFrom.Configuration(context.Configuration)
-            .ReadFrom.Services(services);
-    });
+    builder.Host.UseSerilog(
+        (context, services, loggerConfiguration) =>
+        {
+            loggerConfiguration
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services);
+        }
+    );
     builder.Services.AddSerilog();
     var connectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
     if (string.IsNullOrWhiteSpace(connectionStr))
@@ -86,6 +85,8 @@ try
 
     var app = builder.Build();
 
+    await app.ApplyMigrationAsync();
+
     app.UseExceptionHandler();
     app.UseSerilogRequestLogging();
 
@@ -96,11 +97,6 @@ try
         {
             opts.SwaggerEndpoint("/openapi/v1.json", "Dev-Demo API");
         });
-
-        using var scope = app.Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
-
-        await context.Database.MigrateAsync();
     }
 
     app.MapOrderEndpoints();

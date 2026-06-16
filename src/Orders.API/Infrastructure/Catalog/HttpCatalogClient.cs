@@ -18,7 +18,7 @@ public class HttpCatalogClient(IHttpClientFactory factory, ILogger<HttpCatalogCl
             var client = factory.CreateClient("Catalog.API");
 
             logger.LogInformation("Sending request to external service. ProductId: {productId}", productId);
-            var response = await client.GetAsync($"/{productId}");
+            var response = await client.GetAsync($"/products/{productId}");
             logger.LogInformation("External service send response: {response}", response);
 
             if (!response.IsSuccessStatusCode)
