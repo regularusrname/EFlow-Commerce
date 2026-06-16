@@ -11,21 +11,21 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
+Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger();
 
 Log.Information("Start application");
 try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Host.UseSerilog((context, services, loggerConfiguration) => 
-    {
-        loggerConfiguration
-            .ReadFrom.Configuration(context.Configuration)
-            .ReadFrom.Services(services);
-    });
+    builder.Host.UseSerilog(
+        (context, services, loggerConfiguration) =>
+        {
+            loggerConfiguration
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services);
+        }
+    );
     builder.Services.AddSerilog();
 
     var connectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -72,6 +72,8 @@ try
 
     var app = builder.Build();
 
+    await app.ApplyMigrationAsync();
+
     app.UseExceptionHandler();
     app.UseSerilogRequestLogging();
 
@@ -82,11 +84,6 @@ try
         {
             opts.SwaggerEndpoint("/openapi/v1.json", "Dev-Demo Catalog API");
         });
-
-        using var scope = app.Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-
-        await context.Database.MigrateAsync();
     }
 
     app.MapProductEndpoints();
