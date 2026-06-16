@@ -68,7 +68,7 @@ Order.API (on `5001` port by default):
 http://localhost:5001
 ```
 
-Open Swagger page (if `ASPNETCORE_ENVIRONMENT` id "Development"):
+Open Swagger page (if `ASPNETCORE_ENVIRONMENT` is "Development"):
 
 ```text
 http://localhost:5001/swagger
@@ -80,7 +80,7 @@ Catalog.API (on `5002` port by default)
 http://localhost:5002
 ```
 
-Open Swagger page (also like Order.API available if `ASPNETCORE_ENVIRONMENT` id "Development":
+Open Swagger page (also like Order.API available if `ASPNETCORE_ENVIRONMENT` is "Development":
 
 ```text
 http://localhost:5002/swagger
