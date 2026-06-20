@@ -1,6 +1,7 @@
-namespace Contracts.IntegrationEvents;
+namespace Contracts.IntegrationEvents.Orders;
 
 public record OrderCreatedIntegrationEvent(
+        string Id,
         string OrderId, 
         string CustomerId, 
         decimal TotalPrice, 
