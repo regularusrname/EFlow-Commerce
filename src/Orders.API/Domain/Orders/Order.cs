@@ -26,7 +26,7 @@ public class Order
     
     public required Guid Id { get; init; }
     public required Guid CustomerId { get; init; }
-    public required OrderStatus Status { get; set; }
+    public OrderStatus Status { get; private set; }
     public required DateTime CreatedAtUtc { get; init; }
     public IReadOnlyCollection<OrderItem> Items => _items;
     public decimal TotalPrice => CalculateTotalPrice();

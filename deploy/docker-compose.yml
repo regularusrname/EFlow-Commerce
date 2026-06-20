@@ -50,6 +50,7 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+
   rabbitmq:
     image: rabbitmq:management
     container_name: eflow_dev_rabbitmq
