@@ -33,6 +33,7 @@ public class GetOrderQueryHandler(OrderDbContext context, ILogger<GetOrderQueryH
                 orderById.Id.ToString(),
                 orderById.CustomerId.ToString(),
                 orderById.Status.ToString(),
+                PaymentFailedReason: null,
                 orderById.CreatedAtUtc,
                 orderById.Items,
                 orderById.TotalPrice
