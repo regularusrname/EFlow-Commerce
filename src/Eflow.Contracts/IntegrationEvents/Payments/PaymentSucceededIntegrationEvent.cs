@@ -1,3 +1,3 @@
-namespace Contracts.IntegrationEvents.Payments;
+namespace Eflow.Contracts.IntegrationEvents.Payments;
 
-public record PaymentSucceededIntegrationEvent(string Id, string OrderId, string PaymentId, DateTime PaidAtUtc);
+public record PaymentSucceededIntegrationEvent(Guid Id, Guid OrderId, Guid PaymentId, DateTime PaidAtUtc);

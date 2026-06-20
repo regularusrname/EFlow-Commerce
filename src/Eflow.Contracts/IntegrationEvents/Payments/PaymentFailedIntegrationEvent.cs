@@ -1,3 +1,3 @@
-namespace Contracts.IntegrationEvents.Payments;
+namespace Eflow.Contracts.IntegrationEvents.Payments;
 
-public record PaymentFailedIntegrationEvent(string Id, string OrderId, string Reason, DateTime FailedAtUtc);
+public record PaymentFailedIntegrationEvent(Guid Id, Guid OrderId, string Reason, DateTime FailedAtUtc);

@@ -1,12 +1,12 @@
-namespace Contracts.IntegrationEvents.Orders;
+namespace Eflow.Contracts.IntegrationEvents.Orders;
 
 public record OrderCreatedIntegrationEvent(
-        string Id,
-        string OrderId, 
-        string CustomerId, 
+        Guid Id,
+        Guid OrderId, 
+        Guid CustomerId, 
         decimal TotalPrice, 
         IReadOnlyCollection<OrderCreatedItem> Items,
         DateTime OccurredUtc
 );
 
-public record OrderCreatedItem(string ProductId, int Quantity, decimal UnitPrice);
+public record OrderCreatedItem(Guid ProductId, int Quantity, decimal UnitPrice);
