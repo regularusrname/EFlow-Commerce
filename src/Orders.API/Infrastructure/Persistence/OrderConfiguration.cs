@@ -28,6 +28,9 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasField("_items")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.Property(o => o.PaymentFailedReason)
+            .IsRequired(false);
+
         builder.Ignore(o => o.TotalPrice);
     }
 }
