@@ -30,6 +30,46 @@ public class Order
     public required DateTime CreatedAtUtc { get; init; }
     public IReadOnlyCollection<OrderItem> Items => _items;
     public decimal TotalPrice => CalculateTotalPrice();
+    public string? PaymentFailedReason { get; private set; }
+
+    public void MarkPaymentProcessing()
+    {
+        if (Status != OrderStatus.Pending)
+            throw new InvalidOperationException("Status properties should have the 'Pending' value");
+
+        Status = OrderStatus.PaymentProcessing;
+    }
+
+    public void MarkAsPaid()
+    {
+        if (Status == OrderStatus.Cancelled)
+            throw new InvalidOperationException("Cannot mark as paid the order with status 'Cancelled'");
+
+        //for milestone 3
+        if (Status == OrderStatus.PaymentFailed)
+            throw new InvalidOperationException(
+                    "[For this stage of development]: Cannot mark as paid the order with status 'PaymentFailed'"
+            );
+
+        Status = OrderStatus.Paid;
+    }
+
+    public void MarkPaymentFailed(string reason)
+    {
+        if (Status == OrderStatus.Paid)
+            throw new InvalidOperationException("Cannot mark payment as failed the order with status 'Paid'");
+
+        if (Status == OrderStatus.Cancelled)
+            return;
+        
+        PaymentFailedReason = reason;
+        Status = OrderStatus.PaymentFailed;
+    }
+
+    public void Cancel()
+    {
+        Status = OrderStatus.Cancelled;
+    }
 
     private decimal CalculateTotalPrice()
     {
