@@ -1,14 +1,17 @@
+using MassTransit;
 using Orders.API.Common;
 using Orders.API.Common.Abstractions;
 using Orders.API.Domain.Orders;
 using Orders.API.Infrastructure.Catalog;
 using Orders.API.Infrastructure.Persistence;
+using Eflow.Contracts.IntegrationEvents.Orders;
 
 namespace Orders.API.Features.CreateOrder;
 
 public class CreateOrderHandler(
     OrderDbContext context,
     ICatalogClient<Result<CatalogProductResponse>> client,
+    IPublishEndpoint publishEndpoint,
     ILogger<CreateOrderHandler> logger
 ) : IRequestHandler<CreateOrderCommand, Result<CreateOrderResponse>>
 {
@@ -65,8 +68,21 @@ public class CreateOrderHandler(
             var order = new Order(Guid.Parse(request.CustomerId), domainItems);
 
             logger.LogInformation("Adding created order to Database. OrderId: {id}", order.Id);
+
+            order.MarkPaymentProcessing();
             await _context.Orders.AddAsync(order);
             await _context.SaveChangesAsync();
+
+            var createdEvent = new OrderCreatedIntegrationEvent(
+                    Guid.CreateVersion7(), 
+                    order.Id, 
+                    order.CustomerId, 
+                    order.TotalPrice, 
+                    [..order.Items.Select(i => new OrderCreatedItem(i.Id,i.Quantity, i.UnitPrice))],
+                    DateTime.UtcNow
+            );
+
+            await publishEndpoint.Publish(createdEvent, cancellation);
 
             var response = new CreateOrderResponse(order.Id.ToString(), order.Status.ToString());
 
