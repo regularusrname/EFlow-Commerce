@@ -13,7 +13,7 @@ public class GetProductsHandler(CatalogDbContext context, ILogger<GetProductsHan
         logger.LogInformation("GetProductsHandler start working");
         try
         {
-        var items = await context.Products.Select(p => 
+        var items = await context.Products.AsNoTracking().Select(p => 
                 new ProductResponse(p.Id.ToString(),
                     p.Name,
                     p.Description ?? "",

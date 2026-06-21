@@ -21,7 +21,7 @@ public class GetProductHandler(CatalogDbContext context, ILogger<GetProductHandl
         {
             var requestedId = Guid.Parse(request.ProductId);
 
-            var response = await context.Products.FirstOrDefaultAsync(p => p.Id == requestedId);
+            var response = await context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == requestedId);
 
             if (response is null)
             {
