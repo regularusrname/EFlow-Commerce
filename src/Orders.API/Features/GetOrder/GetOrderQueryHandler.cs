@@ -18,7 +18,7 @@ public class GetOrderQueryHandler(OrderDbContext context, ILogger<GetOrderQueryH
         {
             var requestedId = Guid.Parse(request.OrderId);
             var orderById = await context
-                .Orders.Include(o => o.Items)
+                .Orders.AsNoTracking().Include(o => o.Items)
                 .FirstOrDefaultAsync(o => o.Id == requestedId, cancellation);
 
             if (orderById is null)
