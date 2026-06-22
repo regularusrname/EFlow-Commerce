@@ -9,6 +9,7 @@ using Orders.API.Common.Pipeline;
 using Orders.API.Features.CreateOrder;
 using Orders.API.Features.GetOrder;
 using Orders.API.Infrastructure.Catalog;
+using Orders.API.Infrastructure.Messaging.Consumers;
 using Orders.API.Infrastructure.Persistence;
 using Serilog;
 
@@ -85,6 +86,9 @@ try
 
     builder.Services.AddMassTransit(busRegConfigurator =>
     {
+        busRegConfigurator.AddConsumer<PaymentSucceededConsumer>();
+        busRegConfigurator.AddConsumer<PaymentFailedConsumer>();
+
         busRegConfigurator.UsingRabbitMq((context, configurator) => 
         {
             configurator.Host(new Uri(builder.Configuration.GetValue<string>("ExternalServices:MessageBroker:Host")!), h => 
