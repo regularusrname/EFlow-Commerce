@@ -1,5 +1,7 @@
 using MassTransit;
 using Payment.Worker;
+using Payment.Worker.Consumers;
+using Payment.Worker.Services;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger();
@@ -15,8 +17,13 @@ try
             loggerConf.ReadFrom.Configuration(builder.Configuration).ReadFrom.Services(services);
         }
     );
+
+    builder.Services.AddScoped<IPaymentProcessor, FakePaymentProcessor>();
+
     builder.Services.AddMassTransit(busRegConfigurator =>
     {
+        busRegConfigurator.AddConsumer<OrderCreatedConsumer>();
+
         busRegConfigurator.UsingRabbitMq(
             (context, configurator) =>
             {
