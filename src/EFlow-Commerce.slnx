@@ -8,4 +8,5 @@
   <Project Path="Catalog.API/Catalog.API.csproj" />
   <Project Path="Eflow.Contracts/Eflow.Contracts.csproj" />
   <Project Path="Orders.API/Orders.API.csproj" />
+  <Project Path="Payment.Worker/Payment.Worker.csproj" />
 </Solution>
