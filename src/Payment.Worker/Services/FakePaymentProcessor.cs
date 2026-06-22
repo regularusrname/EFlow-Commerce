@@ -20,18 +20,18 @@ public class FakePaymentProcessor(ILogger<FakePaymentProcessor> logger) : IPayme
     )
     {
         logger.LogInformation(
-            "Start fake payment-processing. OrderId: {id}; EventId: {eventId",
+            "Start fake payment-processing. OrderId: {id}; EventId: {eventId}",
             createdOrder.OrderId,
             createdOrder.Id
         );
 
-        var chance = _randomazer.Next(minValue: 0, maxValue: 10);
+        var chance = await FakePaymentProcessAsync(token);
         logger.LogDebug(
             "Simulating random result for payment-processing. Current chance: {chance}",
             chance
         );
 
-        if (chance >= 0 && chance <= 2)
+        if (chance < 2)
         {
             logger.LogInformation(
                 "Payment failure. OrderId: {orderId}; EventId: {eventId}",
@@ -41,10 +41,16 @@ public class FakePaymentProcessor(ILogger<FakePaymentProcessor> logger) : IPayme
 
             var reason = _reasons[_randomazer.Next(0, _reasons.Length)];
             logger.LogInformation("Payment-failure reason: {reason}", reason);
-            return new PaymentResponse(createdOrder.Id, IsSuccess: false, reason);
+            return new PaymentResponse(null, IsSuccess: false, reason);
         }
 
         logger.LogInformation("FakePaymentProcessor returning successful result");
-        return new PaymentResponse(createdOrder.Id, IsSuccess: true, FailureReason: null);
+        return new PaymentResponse(Guid.CreateVersion7(), IsSuccess: true, FailureReason: null);
+    }
+
+    private async Task<int> FakePaymentProcessAsync(CancellationToken token)
+    {
+        await Task.Delay(TimeSpan.FromSeconds(3), token);
+        return _randomazer.Next(minValue: 0, maxValue: 10);
     }
 }
