@@ -13,8 +13,9 @@ public class PaymentSucceededConsumer(
     public async Task Consume(ConsumeContext<PaymentSucceededIntegrationEvent> context)
     {
         logger.LogInformation(
-            "PaymentSucceededConsumer: Recieve message from broker. Id: {id}",
-            context.MessageId
+            "PaymentSucceededConsumer: Recieve message from broker. Id: {id}; PaymentId: {PaymentId}",
+            context.MessageId,
+            context.Message.PaymentId
         );
 
         try
