@@ -1,3 +1,4 @@
+using MassTransit;
 using Payment.Worker;
 using Serilog;
 
@@ -14,6 +15,36 @@ try
             loggerConf.ReadFrom.Configuration(builder.Configuration).ReadFrom.Services(services);
         }
     );
+    builder.Services.AddMassTransit(busRegConfigurator =>
+    {
+        busRegConfigurator.UsingRabbitMq(
+            (context, configurator) =>
+            {
+                configurator.Host(
+                    new Uri(
+                        builder.Configuration.GetValue<string>(
+                            "ExternalServices:MessageBroker:Host"
+                        )!
+                    ),
+                    h =>
+                    {
+                        h.Username(
+                            builder.Configuration.GetValue<string>(
+                                "ExternalServices:MessageBroker:User"
+                            )!
+                        );
+                        h.Password(
+                            builder.Configuration.GetValue<string>(
+                                "ExternalServices:MessageBroker:Password"
+                            )!
+                        );
+                    }
+                );
+
+                configurator.ConfigureEndpoints(context);
+            }
+        );
+    });
 
     builder.Services.AddHostedService<Worker>();
 
