@@ -1,14 +1,17 @@
 services:
   orders-api:
     build:
-      context: ../src/Orders.API/
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: src/Orders.API/Dockerfile
     container_name: eflow-orders-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: "Host=postgres;Database=eflow_dev_orders;Username=eflow_dev_user;Password=secret"
       ExternalServices__Catalog__BaseUrl: http://catalog-api:8080
+      ExternalServices__MessageBroker__Host: rabbitmq
+      ExternalServices__MessageBroker__User: eflow_dev_user
+      ExternalServices__MessageBroker__Password: secret
     ports:
       - "5001:8080"
     depends_on:
@@ -16,11 +19,13 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   catalog-api:
     build:
-      context: ../src/Catalog.API/
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: src/Catalog.API/Dockerfile
     container_name: eflow-catalog-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -51,6 +56,20 @@ services:
       retries: 10
       start_period: 10s
 
+  payment-worker:
+    build:
+      context: ..
+      dockerfile: src/Payment.Worker/Dockerfile
+    container_name: eflow-payment-worker
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      ExternalServices__MessageBroker__Host: rabbitmq
+      ExternalServices__MessageBroker__User: eflow_dev_user
+      ExternalServices__MessageBroker__Password: secret
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   rabbitmq:
     image: rabbitmq:management
     container_name: eflow_dev_rabbitmq
@@ -60,5 +79,11 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: eflow_dev_user
       RABBITMQ_DEFAULT_PASS: secret
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 volumes:
   eflow_postgres_data:
