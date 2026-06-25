@@ -89,16 +89,33 @@ try
         busRegConfigurator.AddConsumer<PaymentSucceededConsumer>();
         busRegConfigurator.AddConsumer<PaymentFailedConsumer>();
 
-        busRegConfigurator.UsingRabbitMq((context, configurator) => 
-        {
-            configurator.Host(new Uri(builder.Configuration.GetValue<string>("ExternalServices:MessageBroker:Host")!), h => 
+        busRegConfigurator.UsingRabbitMq(
+            (context, configurator) =>
             {
-                h.Username(builder.Configuration.GetValue<string>("ExternalServices:MessageBroker:User")!);
-                h.Password(builder.Configuration.GetValue<string>("ExternalServices:MessageBroker:Password")!);
-            });
+                var host = builder.Configuration.GetValue<string>(
+                    "ExternalServices:MessageBroker:Host"
+                )!;
+                configurator.Host(
+                    host,
+                    "/",
+                    h =>
+                    {
+                        h.Username(
+                            builder.Configuration.GetValue<string>(
+                                "ExternalServices:MessageBroker:User"
+                            )!
+                        );
+                        h.Password(
+                            builder.Configuration.GetValue<string>(
+                                "ExternalServices:MessageBroker:Password"
+                            )!
+                        );
+                    }
+                );
 
-            configurator.ConfigureEndpoints(context);
-        });
+                configurator.ConfigureEndpoints(context);
+            }
+        );
     });
 
     builder.Services.AddOpenApi();
