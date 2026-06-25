@@ -1,15 +1,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-WORKDIR /src
+WORKDIR /source
 
-COPY Catalog.API.csproj Catalog.API/
+COPY src/Catalog.API/Catalog.API.csproj src/Catalog.API/
 
-RUN dotnet restore Catalog.API/Catalog.API.csproj
+RUN dotnet restore src/Catalog.API/Catalog.API.csproj
 
-COPY ./ Catalog.API/
+# COPY src/ .
+COPY . .
 
-WORKDIR /src/Catalog.API
+# WORKDIR /src/Catalog.API
 
-RUN dotnet publish Catalog.API.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish src/Catalog.API/Catalog.API.csproj -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
