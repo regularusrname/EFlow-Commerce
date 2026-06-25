@@ -1,15 +1,17 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-WORKDIR /src
+WORKDIR /source
 
-COPY Orders.API.csproj Orders.API/
+COPY src/Orders.API/Orders.API.csproj src/Orders.API/
+COPY src/Eflow.Contracts/Eflow.Contracts.csproj src/Eflow.Contracts/
 
-RUN dotnet restore Orders.API/Orders.API.csproj
+RUN dotnet restore src/Orders.API/Orders.API.csproj
 
-COPY ./ Orders.API/
+# COPY src/Orders.API/ Orders.API/
+COPY . .
 
-WORKDIR /src/Orders.API
+# WORKDIR /src/Orders.API
 
-RUN dotnet publish Orders.API.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish src/Orders.API/Orders.API.csproj -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
