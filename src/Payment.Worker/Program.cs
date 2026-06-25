@@ -27,12 +27,12 @@ try
         busRegConfigurator.UsingRabbitMq(
             (context, configurator) =>
             {
+                var host = builder.Configuration.GetValue<string>(
+                    "ExternalServices:MessageBroker:Host"
+                )!;
                 configurator.Host(
-                    new Uri(
-                        builder.Configuration.GetValue<string>(
-                            "ExternalServices:MessageBroker:Host"
-                        )!
-                    ),
+                    host,
+                    "/",
                     h =>
                     {
                         h.Username(
