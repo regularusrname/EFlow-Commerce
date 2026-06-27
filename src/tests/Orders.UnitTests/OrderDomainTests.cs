@@ -8,10 +8,11 @@ public class OrderDomainTests
     public void SuccessCreateOrderWithValidData()
     {
         var customerId = Guid.CreateVersion7();
-        List<OrderItem> items = [
+        List<OrderItem> items =
+        [
             new(Guid.CreateVersion7(), 1, 10m),
             new(Guid.CreateVersion7(), 2, 20m),
-            new(Guid.CreateVersion7(), 3, 30m)
+            new(Guid.CreateVersion7(), 3, 30m),
         ];
         var expectedTotalSum = items.Select(i => i.TotalPrice).Sum();
 
@@ -30,7 +31,8 @@ public class OrderDomainTests
     [Fact]
     public void ThrowExceptionWhenCreateOrderItemWithInvalidData()
     {
-        List<OrderItem> validItems = [
+        List<OrderItem> validItems =
+        [
             new(Guid.CreateVersion7(), 1, 10m),
             new(Guid.CreateVersion7(), 2, 20m),
         ];
@@ -40,14 +42,72 @@ public class OrderDomainTests
         // creating an order without items should fail
         Assert.Throws<ArgumentException>(() => new Order(Guid.CreateVersion7(), []));
         // creating an order item with empty product id should fail
-        Assert.Throws<ArgumentException>(() 
-                => new Order(Guid.CreateVersion7(), [.. validItems, new OrderItem(Guid.Empty, 1, 1m)]));
+        Assert.Throws<ArgumentException>(() =>
+            new Order(Guid.CreateVersion7(), [.. validItems, new OrderItem(Guid.Empty, 1, 1m)])
+        );
         // creating an order item with quantity less than or equal to zero should fail
-        Assert.Throws<ArgumentException>(() 
-                => new Order(Guid.CreateVersion7(), [.. validItems, new OrderItem(Guid.Empty, -1, 1m)]));
+        Assert.Throws<ArgumentException>(() =>
+            new Order(Guid.CreateVersion7(), [.. validItems, new OrderItem(Guid.Empty, -1, 1m)])
+        );
         // creating an order item with price less than or equal to zero should fail
-        Assert.Throws<ArgumentException>(() 
-                => new Order(Guid.CreateVersion7(), [.. validItems, new OrderItem(Guid.Empty, 1, -1.67m)]));
+        Assert.Throws<ArgumentException>(() =>
+            new Order(Guid.CreateVersion7(), [.. validItems, new OrderItem(Guid.Empty, 1, -1.67m)])
+        );
+    }
 
+    [Fact]
+    public void FailedMarkPaymentProcessingWhenStatusIsNotPending()
+    {
+        var expectedExceptionMessage = "Status properties should have the 'Pending' value";
+        List<OrderItem> validItems = [new(Guid.CreateVersion7(), 123, 12m)];
+        var order = new Order(Guid.CreateVersion7(), validItems);
+
+        order.Cancel();
+
+        var exception = Assert.Throws<InvalidOperationException>(order.MarkPaymentProcessing);
+        Assert.Equal(expectedExceptionMessage, exception.Message);
+    }
+
+    [Fact]
+    public void FailedMarkAsPaidWhenStatusIsCancelled()
+    {
+        var expectedErrMessage = "Cannot mark as paid the order with status 'Cancelled'";
+        List<OrderItem> validItems = [new(Guid.CreateVersion7(), 2, 3m)];
+        var order = new Order(Guid.CreateVersion7(), validItems);
+
+        order.Cancel();
+
+        var exception = Assert.Throws<InvalidOperationException>(order.MarkAsPaid);
+        Assert.Equal(expectedErrMessage, exception.Message);
+    }
+
+    [Fact]
+    public void FailedMarkPaymentFailedWhenStatusIsCancelled()
+    {
+        var expectedErrMessage = "Cannot mark payment as failed the order with status 'Cancelled'";
+        List<OrderItem> validItems = [new(Guid.CreateVersion7(), 2, 3m)];
+        var order = new Order(Guid.CreateVersion7(), validItems);
+
+        order.Cancel();
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            order.MarkPaymentFailed("Reason")
+        );
+        Assert.Equal(expectedErrMessage, exception.Message);
+    }
+
+    [Fact]
+    public void FailedMarkPaymentFailedWhenStatusIsPaid()
+    {
+        var expectedErrMessage = "Cannot mark payment as failed the order with status 'Paid'";
+        List<OrderItem> validItems = [new(Guid.CreateVersion7(), 2, 3m)];
+        var order = new Order(Guid.CreateVersion7(), validItems);
+
+        order.MarkAsPaid();
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            order.MarkPaymentFailed("Reason")
+        );
+        Assert.Equal(expectedErrMessage, exception.Message);
     }
 }
