@@ -60,7 +60,7 @@ public class Order
             throw new InvalidOperationException("Cannot mark payment as failed the order with status 'Paid'");
 
         if (Status == OrderStatus.Cancelled)
-            return;
+            throw new InvalidOperationException("Cannot mark payment as failed the order with status 'Cancelled'");
         
         PaymentFailedReason = reason;
         Status = OrderStatus.PaymentFailed;
