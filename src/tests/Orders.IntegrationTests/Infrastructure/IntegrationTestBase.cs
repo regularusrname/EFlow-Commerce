@@ -1,16 +1,13 @@
+using MassTransit.Testing;
+
 namespace Orders.IntegrationTests.Infrastructure;
 
 [Collection(nameof(IntegrationTestCollection))]
-public abstract class IntegrationTestBase : IAsyncLifetime
+public abstract class IntegrationTestBase(OrderApiFactory factory) : IAsyncLifetime
 {
-    protected readonly HttpClient Client;
-    protected readonly OrderApiFactory Factory;
-
-    protected IntegrationTestBase(OrderApiFactory factory)
-    {
-        Factory = factory;
-        Client = factory.CreateClient();
-    }
+    protected readonly HttpClient Client = factory.CreateClient();
+    protected readonly OrderApiFactory Factory = factory;
+    protected readonly ITestHarness Harness = factory.Services.GetTestHarness();
 
     public async Task InitializeAsync()
     {
@@ -19,6 +16,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
     public Task DisposeAsync()
     {
+        Client.Dispose();
         return Task.CompletedTask;
     }
 
