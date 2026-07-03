@@ -18,32 +18,38 @@ public class OrderCreatedConsumer(
             context.Message.Id
         );
 
-        var paymentProcessingResponse = await processor.ProcessAsync(
-            context.Message,
-            CancellationToken.None
-        );
-
-        if (!paymentProcessingResponse.IsSuccess)
+        if (
+            await processor.ProcessAsync(context.Message, CancellationToken.None)
+            is PaymentResponse paymentProcessingResponse
+        )
         {
-            logger.LogInformation("Recive failed result from payment-processor");
-            await publishEndpoint.Publish<PaymentFailedIntegrationEvent>(
+            if (!paymentProcessingResponse.IsSuccess)
+            {
+                logger.LogInformation("Recive failed result from payment-processor");
+                await publishEndpoint.Publish<PaymentFailedIntegrationEvent>(
+                    new(
+                        context.Message.Id,
+                        context.Message.OrderId,
+                        paymentProcessingResponse.FailureReason!,
+                        DateTime.UtcNow
+                    )
+                );
+                return;
+            }
+
+            logger.LogInformation("Payment-processor return successful result");
+            await publishEndpoint.Publish<PaymentSucceededIntegrationEvent>(
                 new(
                     context.Message.Id,
                     context.Message.OrderId,
-                    paymentProcessingResponse.FailureReason!,
+                    (Guid)paymentProcessingResponse.PaymentId!,
                     DateTime.UtcNow
                 )
             );
+            return;
         }
 
-        logger.LogInformation("Payment-processor return successful result");
-        await publishEndpoint.Publish<PaymentSucceededIntegrationEvent>(
-            new(
-                context.Message.Id,
-                context.Message.OrderId,
-                (Guid)paymentProcessingResponse.PaymentId!,
-                DateTime.UtcNow
-            )
-        );
+        logger.LogError("OrderCreatedConsumer did not recieve response from payment-processor");
+        throw new InvalidOperationException("IPaymentProcessor did not return any result");
     }
 }
