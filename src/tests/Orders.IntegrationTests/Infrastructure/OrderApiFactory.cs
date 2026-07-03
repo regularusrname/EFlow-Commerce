@@ -10,6 +10,8 @@ using Npgsql;
 using Orders.API.Common.Abstractions;
 using Orders.API.Common;
 using Orders.API.Infrastructure.Catalog;
+using MassTransit.Testing;
+using MassTransit;
 
 namespace Orders.IntegrationTests.Infrastructure;
 
@@ -49,11 +51,12 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         });
     }
 
-    public new async Task DisposeAsync()
+    async Task IAsyncLifetime.DisposeAsync()
     {
+        await base.DisposeAsync();
+        await _context.DisposeAsync();
         await _postgres.StopAsync();
         await _postgres.DisposeAsync();
-        await _context.DisposeAsync();
     }
 
     public async Task ResetDatabaseAsync()
@@ -83,6 +86,8 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             {
                 opts.UseNpgsql(_postgres.GetConnectionString());
             });
+
+            services.AddMassTransitTestHarness();
         });
     }
 }
