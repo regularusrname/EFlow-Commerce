@@ -1,6 +1,5 @@
 using Npgsql;
 using Respawn;
-using MassTransit;
 using Orders.API.Common;
 using Testcontainers.PostgreSql;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +10,8 @@ using Orders.API.Infrastructure.Catalog;
 using Orders.API.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Orders.API.Infrastructure.Messaging.Publishers;
+using MassTransit;
 
 namespace Orders.IntegrationTests.Infrastructure;
 
@@ -27,6 +28,8 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     private OrderDbContext _context = null!;
 
     public FakeCatalogClient CatalogClient { get; } = new();
+
+    public FakeOrderCreateEventPublisher Publisher { get; } = new();
 
     public async Task InitializeAsync()
     {
@@ -68,6 +71,7 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         _context.ChangeTracker.Clear();
 
         CatalogClient.Clear();
+        Publisher.Reset();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -79,12 +83,15 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             services.RemoveAll<OrderDbContext>();
             services.RemoveAll<DbContextOptions<OrderDbContext>>();
             services.RemoveAll<ICatalogClient<Result<CatalogProductResponse>>>();
+            services.RemoveAll<IOrderEventPublisher>();
 
+            services.AddSingleton<IOrderEventPublisher>(Publisher);
             services.AddSingleton<ICatalogClient<Result<CatalogProductResponse>>>(CatalogClient);
             services.AddDbContext<OrderDbContext>(opts => 
             {
                 opts.UseNpgsql(_postgres.GetConnectionString());
             });
+            services.AddMassTransitTestHarness();
         });
     }
 }

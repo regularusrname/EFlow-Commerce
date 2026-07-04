@@ -1,10 +1,9 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using Eflow.Contracts.IntegrationEvents.Orders;
 using Orders.API.Common;
 using Orders.API.Domain.Orders;
-using Orders.API.Features.CreateOrder;
 using Orders.API.Features.GetOrder;
+using Orders.API.Features.CreateOrder;
 using Orders.IntegrationTests.Infrastructure;
 
 namespace Orders.IntegrationTests;
@@ -25,7 +24,7 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IntegrationTest
             new Error("Validation.Failure", "Invalid format of CustomerId"),
             jsonResponse.First()
         );
-        // Debug(jsonResponse);
+        Assert.Empty(Factory.Publisher.PublishedEvents);
     }
 
     [Fact]
@@ -40,26 +39,15 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IntegrationTest
         };
 
         var response = await Client.PostAsJsonAsync("/orders", request);
-        // Debug(response.ToString());
         var jsonResponse = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.NotNull(jsonResponse);
         Assert.Equal(OrderStatus.PaymentProcessing.ToString(), jsonResponse.Status);
-        // Debug(await response.Content.ReadAsStringAsync());
-        // Assert.True(await Harness.Published.Any<OrderCreatedIntegrationEvent>());
-        // Assert.Equal(
-        //     jsonResponse.OrderId,
-        //     (
-        //         await Harness
-        //             .Published.SelectAsync<OrderCreatedIntegrationEvent>()
-        //             .FirstOrDefaultAsync()
-        //     )
-        //         ?.Context
-        //         .Message
-        //         .OrderId
-        //         .ToString()
-        // );
+        Assert.NotEmpty(Factory.Publisher.PublishedEvents);
+        Assert.Equal(jsonResponse.OrderId, Factory.Publisher.PublishedEvents[0].OrderId.ToString());
+        Assert.Equal(request.customerId, Factory.Publisher.PublishedEvents[0].CustomerId);
+        //  TODO: Test consumers
     }
 
     [Fact]
@@ -85,6 +73,7 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IntegrationTest
         Assert.NotEmpty(jsonResponse);
 
         Assert.Equal(expectedError, jsonResponse.First());
+        Assert.Empty(Factory.Publisher.PublishedEvents);
     }
 
     [Fact]
@@ -113,6 +102,7 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IntegrationTest
         Assert.NotEmpty(jsonResponse);
 
         Assert.Equal(expectedError, jsonResponse.First());
+        Assert.Empty(Factory.Publisher.PublishedEvents);
     }
 
     [Fact]
@@ -139,6 +129,7 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IntegrationTest
         Assert.NotEmpty(jsonResponse);
 
         Assert.Equal(expectedError, jsonResponse.First());
+        Assert.Empty(Factory.Publisher.PublishedEvents);
     }
 
     [Fact]
@@ -154,10 +145,10 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IntegrationTest
         };
 
         var createResponse = await Client.PostAsJsonAsync("/orders", request);
-        // Debug(await createResponse.Content.ReadAsStringAsync());
         var jsonCreateResponse =
             await createResponse.Content.ReadFromJsonAsync<CreateOrderResponse>();
         Assert.NotNull(jsonCreateResponse);
+        Assert.NotEmpty(Factory.Publisher.PublishedEvents);
 
         var newClient = Factory.CreateClient();
         var getByIdResponse = await newClient.GetAsync($"/orders/{jsonCreateResponse.OrderId}");
@@ -168,10 +159,13 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IntegrationTest
         Assert.NotNull(getByIdJsonResponse);
         Assert.Equal(jsonCreateResponse.OrderId, getByIdJsonResponse.OrderId.ToString());
         Assert.Equal(expectedCustomerId, Guid.Parse(getByIdJsonResponse.CustomerId));
-        // Debug(await getByIdResponse.Content.ReadAsStringAsync());
         Assert.NotEmpty(getByIdJsonResponse.Items);
         Assert.Equal(expectedProductId, getByIdJsonResponse.Items.First().ProductId);
         Assert.Equal(2 * 420.69m, getByIdJsonResponse.TotalPrice);
+        
+        Assert.Equal(getByIdJsonResponse.OrderId, Factory.Publisher.PublishedEvents[0].OrderId.ToString());
+        Assert.Equal(getByIdJsonResponse.CustomerId, Factory.Publisher.PublishedEvents[0].CustomerId.ToString());
+        Assert.Equal(getByIdJsonResponse.TotalPrice, Factory.Publisher.PublishedEvents[0].TotalPrice);
     }
 
     [Fact]
@@ -185,7 +179,6 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IntegrationTest
         >();
 
         Assert.Equal(HttpStatusCode.NotFound, getByIdResponse.StatusCode);
-        // Debug(await getByIdResponse.Content.ReadAsStringAsync());
         Assert.NotNull(getByIdJsonResponse);
         Assert.NotEmpty(getByIdJsonResponse);
         Assert.Equal(expectedError, getByIdJsonResponse.First());
