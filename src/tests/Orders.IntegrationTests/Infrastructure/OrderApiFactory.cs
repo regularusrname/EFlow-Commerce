@@ -1,17 +1,16 @@
+using Npgsql;
+using Respawn;
+using MassTransit;
+using Orders.API.Common;
+using Testcontainers.PostgreSql;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Orders.API.Common.Abstractions;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Orders.API.Infrastructure.Catalog;
 using Orders.API.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Testcontainers.PostgreSql;
-using Respawn;
-using Npgsql;
-using Orders.API.Common.Abstractions;
-using Orders.API.Common;
-using Orders.API.Infrastructure.Catalog;
-using MassTransit.Testing;
-using MassTransit;
 
 namespace Orders.IntegrationTests.Infrastructure;
 
@@ -86,8 +85,6 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             {
                 opts.UseNpgsql(_postgres.GetConnectionString());
             });
-
-            services.AddMassTransitTestHarness();
         });
     }
 }

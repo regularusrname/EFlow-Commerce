@@ -1,5 +1,3 @@
-using MassTransit.Testing;
-
 namespace Orders.IntegrationTests.Infrastructure;
 
 [Collection(nameof(IntegrationTestCollection))]
@@ -7,7 +5,6 @@ public abstract class IntegrationTestBase(OrderApiFactory factory) : IAsyncLifet
 {
     protected readonly HttpClient Client = factory.CreateClient();
     protected readonly OrderApiFactory Factory = factory;
-    protected readonly ITestHarness Harness = factory.Services.GetTestHarness();
 
     public async Task InitializeAsync()
     {

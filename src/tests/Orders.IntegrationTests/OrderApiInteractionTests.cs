@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using Eflow.Contracts.IntegrationEvents.Orders;
 using Orders.API.Common;
 using Orders.API.Domain.Orders;
 using Orders.API.Features.CreateOrder;
@@ -44,8 +45,21 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IntegrationTest
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.NotNull(jsonResponse);
-        Assert.Equal(OrderStatus.Pending.ToString(), jsonResponse.Status);
+        Assert.Equal(OrderStatus.PaymentProcessing.ToString(), jsonResponse.Status);
         // Debug(await response.Content.ReadAsStringAsync());
+        // Assert.True(await Harness.Published.Any<OrderCreatedIntegrationEvent>());
+        // Assert.Equal(
+        //     jsonResponse.OrderId,
+        //     (
+        //         await Harness
+        //             .Published.SelectAsync<OrderCreatedIntegrationEvent>()
+        //             .FirstOrDefaultAsync()
+        //     )
+        //         ?.Context
+        //         .Message
+        //         .OrderId
+        //         .ToString()
+        // );
     }
 
     [Fact]
@@ -105,7 +119,10 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IntegrationTest
     public async Task CreateOrder_Failure_Unavailable()
     {
         Factory.CatalogClient.IsUnavailable = true;
-        var expectedError = new Error("Catalog.Unavailable", "Catalog service is currently unavailable.");
+        var expectedError = new Error(
+            "Catalog.Unavailable",
+            "Catalog service is currently unavailable."
+        );
 
         var request = new
         {
