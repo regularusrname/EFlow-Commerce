@@ -10,6 +10,7 @@ using Orders.API.Features.CreateOrder;
 using Orders.API.Features.GetOrder;
 using Orders.API.Infrastructure.Catalog;
 using Orders.API.Infrastructure.Messaging.Consumers;
+using Orders.API.Infrastructure.Messaging.Publishers;
 using Orders.API.Infrastructure.Persistence;
 using Serilog;
 
@@ -83,6 +84,8 @@ try
         Result<GetOrderResponse>,
         GetOrderQueryHandler
     >();
+
+    builder.Services.AddScoped<IOrderEventPublisher, MassTransitOrderEventPublisher>();
 
     builder.Services.AddMassTransit(busRegConfigurator =>
     {
