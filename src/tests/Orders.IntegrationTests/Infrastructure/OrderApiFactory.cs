@@ -27,6 +27,8 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     private OrderDbContext _context = null!;
 
+    public string ConnectionString => _postgres.GetConnectionString();
+
     public FakeCatalogClient CatalogClient { get; } = new();
 
     public FakeOrderCreateEventPublisher Publisher { get; } = new();
@@ -36,13 +38,13 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         await _postgres.StartAsync();
 
         var options = new DbContextOptionsBuilder<OrderDbContext>()
-            .UseNpgsql(_postgres.GetConnectionString())
+            .UseNpgsql(ConnectionString)
             .Options;
         _context = new OrderDbContext(options);
 
         await _context.Database.MigrateAsync();
 
-        await using var conn = new NpgsqlConnection(_postgres.GetConnectionString());
+        await using var conn = new NpgsqlConnection(ConnectionString);
         await conn.OpenAsync();
 
         _respawner = await Respawner.CreateAsync(conn, new RespawnerOptions
@@ -63,7 +65,7 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     public async Task ResetDatabaseAsync()
     {
-        await using var conn = new NpgsqlConnection(_postgres.GetConnectionString());
+        await using var conn = new NpgsqlConnection(ConnectionString);
 
         await conn.OpenAsync();
 
@@ -89,7 +91,7 @@ public class OrderApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             services.AddSingleton<ICatalogClient<Result<CatalogProductResponse>>>(CatalogClient);
             services.AddDbContext<OrderDbContext>(opts => 
             {
-                opts.UseNpgsql(_postgres.GetConnectionString());
+                opts.UseNpgsql(ConnectionString);
             });
             services.AddMassTransitTestHarness();
         });
