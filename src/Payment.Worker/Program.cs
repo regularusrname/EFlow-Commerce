@@ -53,14 +53,14 @@ try
         );
     });
 
-    builder.Services.AddHostedService<Worker>();
+    // builder.Services.AddHostedService<Worker>();
 
     var host = builder.Build();
     host.Run();
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex.Message);
+    Log.Fatal(ex, "Payment.Worker terminated unexpectedly");
 }
 finally
 {

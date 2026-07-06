@@ -7,28 +7,27 @@ namespace Payment.Worker.Consumers;
 
 public class OrderCreatedConsumer(
     IPaymentProcessor processor,
-    IPublishEndpoint publishEndpoint,
     ILogger<OrderCreatedConsumer> logger
 ) : IConsumer<OrderCreatedIntegrationEvent>
 {
     public async Task Consume(ConsumeContext<OrderCreatedIntegrationEvent> context)
     {
         logger.LogInformation(
-            "OrderCreatedConsumer: recieve message from broker. Id: {id}",
+            "OrderCreatedConsumer: receive message from broker. Id: {id}",
             context.Message.Id
         );
 
         if (
-            await processor.ProcessAsync(context.Message, CancellationToken.None)
+            await processor.ProcessAsync(context.Message, context.CancellationToken)
             is PaymentResponse paymentProcessingResponse
         )
         {
             if (!paymentProcessingResponse.IsSuccess)
             {
-                logger.LogInformation("Recive failed result from payment-processor");
-                await publishEndpoint.Publish<PaymentFailedIntegrationEvent>(
+                logger.LogInformation("Receive failed result from payment-processor");
+                await context.Publish<PaymentFailedIntegrationEvent>(
                     new(
-                        context.Message.Id,
+                        Guid.CreateVersion7(),
                         context.Message.OrderId,
                         paymentProcessingResponse.FailureReason!,
                         DateTime.UtcNow
@@ -38,9 +37,9 @@ public class OrderCreatedConsumer(
             }
 
             logger.LogInformation("Payment-processor return successful result");
-            await publishEndpoint.Publish<PaymentSucceededIntegrationEvent>(
+            await context.Publish<PaymentSucceededIntegrationEvent>(
                 new(
-                    context.Message.Id,
+                    Guid.CreateVersion7(),
                     context.Message.OrderId,
                     (Guid)paymentProcessingResponse.PaymentId!,
                     DateTime.UtcNow
