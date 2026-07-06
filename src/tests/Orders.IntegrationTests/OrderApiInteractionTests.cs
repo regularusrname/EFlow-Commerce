@@ -47,7 +47,6 @@ public class OrderApiInteractionTests(OrderApiFactory factory) : IntegrationTest
         Assert.NotEmpty(Factory.Publisher.PublishedEvents);
         Assert.Equal(jsonResponse.OrderId, Factory.Publisher.PublishedEvents[0].OrderId.ToString());
         Assert.Equal(request.customerId, Factory.Publisher.PublishedEvents[0].CustomerId);
-        //  TODO: Test consumers
     }
 
     [Fact]
