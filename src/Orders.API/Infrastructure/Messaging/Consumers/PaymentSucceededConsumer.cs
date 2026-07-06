@@ -18,24 +18,21 @@ public class PaymentSucceededConsumer(
             context.Message.PaymentId
         );
 
-        try
+        var order = await dbContext.Orders.FirstOrDefaultAsync(o =>
+            o.Id == context.Message.OrderId
+        );
+
+        if (order is null)
         {
-            var order = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == context.Message.OrderId);
-
-            if (order is null)
-            {
-                logger.LogWarning("PaymentSucceededConsumer: Order not found. Id: {id}", context.Message.OrderId);
-                throw new InvalidOperationException("Cannot find the Order with given Id");
-            }
-
-            order.MarkAsPaid();
-
-            await dbContext.SaveChangesAsync();
-
+            logger.LogWarning(
+                "PaymentSucceededConsumer: Order not found. Id: {id}",
+                context.Message.OrderId
+            );
+            throw new InvalidOperationException("Cannot find the Order with given Id");
         }
-        catch (Exception ex)
-        {
-            logger.LogError("Exception: {ex}", ex.Message);
-        }
+
+        order.MarkAsPaid();
+
+        await dbContext.SaveChangesAsync();
     }
 }

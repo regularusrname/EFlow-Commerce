@@ -15,22 +15,20 @@ public class PaymentFailedConsumer(OrderDbContext dbContext, ILogger<PaymentFail
             context.MessageId
         );
 
-        try
-        {
-            var order = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == context.Message.OrderId);
+        var order = await dbContext.Orders.FirstOrDefaultAsync(o =>
+            o.Id == context.Message.OrderId
+        );
 
-            if (order is null)
-            {
-                logger.LogWarning("PaymentSucceededConsumer: Order not found. Id: {id}", context.Message.OrderId);
-                throw new InvalidOperationException("Cannot find the Order with given Id");
-            }
-
-            order.MarkPaymentFailed(context.Message.Reason);
-            await dbContext.SaveChangesAsync();
-        }
-        catch (Exception ex)
+        if (order is null)
         {
-            logger.LogError("Exception: {ex}", ex.Message);
+            logger.LogWarning(
+                "PaymentSucceededConsumer: Order not found. Id: {id}",
+                context.Message.OrderId
+            );
+            throw new InvalidOperationException("Cannot find the Order with given Id");
         }
+
+        order.MarkPaymentFailed(context.Message.Reason);
+        await dbContext.SaveChangesAsync();
     }
 }

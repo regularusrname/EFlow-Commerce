@@ -79,11 +79,6 @@ try
         Result<GetOrderResponse>,
         GetOrderQueryHandler
     >();
-    builder.Services.AddDecoratedHandler<
-        GetOrderQuery,
-        Result<GetOrderResponse>,
-        GetOrderQueryHandler
-    >();
 
     builder.Services.AddScoped<IOrderEventPublisher, MassTransitOrderEventPublisher>();
 
@@ -145,7 +140,7 @@ try
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex.Message, "Application terminated unexpectedly");
+    Log.Fatal(ex, "Application terminated unexpectedly");
 }
 finally
 {
